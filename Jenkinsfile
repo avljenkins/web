@@ -6,15 +6,15 @@ options {
 
   environment {
     
-	 DOCKER_IMAGE_NAME = "afaqyco/avl-web-notifier-stage-2.8.15"
-	  AFAQY_IMAGE_NAME = "docker.afaqy.sa/java/web-notifier"
+	 DOCKER_IMAGE_NAME = "afaqyco/avl-web-notifier-stage-2.14.18"
+	  AFAQY_IMAGE_NAME = "docker.afaqy.sa/java/avl-web-notifier-stage-2.14.18"
   }
 
   stages {
      stage('Build Docker Image') {
             
             steps {
-		  sh 'mvn clean -Dmaven.javadoc.skip=true verify compile package install --also-make -Denvironment=stage -Drevision=2.8.15-stage'  
+		  sh 'mvn clean -Dmaven.javadoc.skip=true verify compile package install --also-make -Denvironment=stage -Drevision=2.14.18-stage'  
 		  sh 'cp docker/stage/Dockerfile .'
 		 //   script {
                     //app = docker.build(DOCKER_IMAGE_NAME) 
@@ -57,17 +57,17 @@ options {
         script 
 {
    docker.withRegistry('https://docker.afaqy.sa', 'afaqy-hub') {	
-    sh """ssh -tt jenkins@10.10.23.114  << EOF 
+    sh """ssh -tt -p 11207 jenkins@10.10.23.114  << EOF 
     docker stop web-notifier || true && docker rm web-notifier || true
     docker info
-    docker pull afaqyco/avl-web-notifier-stage-2.8.15:latest
+    docker pull afaqyco/java/avl-web-notifier-stage-2.14.18:latest
    docker container run \
     -d \
     --network web-notifier \
     -p 12151:12151 -p 12152:12152 -p 12153:12153 \
     --restart unless-stopped \
     --name web-notifier \
-    -v /afaqylogs/avlservice/web-notifier:/workdir/logs -v /var/run/docker.sock:/var/run/docker.sock docker.afaqy.sa/java/avl-web-notifier-stage-2.8.15:latest 
+    -v /afaqylogs/avlservice/web-notifier:/workdir/logs -v /var/run/docker.sock:/var/run/docker.sock docker.afaqy.sa/java/avl-web-notifier-stage-2.14.18:latest 
     echo "web-notifier service is up and running"
     exit
     EOF"""
